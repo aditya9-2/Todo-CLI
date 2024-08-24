@@ -1,6 +1,9 @@
-const { Command } = require('commander');
+// const { Command } = require('commander');
+import { Command } from 'commander';
 const program = new Command();
-const fs = require('fs');
+// const fs = require('fs');
+import fs from 'fs';
+import chalk from 'chalk';
 
 
 const path = './todo.txt';
@@ -48,7 +51,7 @@ program.command('add')
         todos.push(todo);
         saveTodo(todos);
 
-        console.log(`Todo added: ${todo}`)
+        console.log(chalk.red.bold(`Todo added: ${todo}`))
     })
 
 program.command('show')
@@ -58,12 +61,19 @@ program.command('show')
         let todos = readTodo();
 
         if (todos.length === 0) {
-            console.log('Todo is Empty');
+            console.log(chalk.yellow('Todo is Empty'));
 
         } else {
             todos.forEach((element, index) => {
 
-                console.log(`${index + 1}: ${element}`);
+                if (element.startsWith('[Completed]')) {
+
+                    console.log(chalk.green(`${index + 1}: ${element}`));
+
+                } else {
+
+                    console.log(chalk.red(`${index + 1}: ${element}`));
+                }
             });
         }
 
@@ -76,11 +86,11 @@ program.command('delete')
 
         if (todos.length !== 0) {
             todos.pop();
-            console.log('last todo deleted')
+            console.log(chalk.blue('last todo deleted'));
             saveTodo(todos)
 
         } else {
-            console.log(`Your todo is empty`);
+            console.log(chalk.yellow(`Your todo is empty`));
 
         }
     });
@@ -93,13 +103,31 @@ program.command('edit')
         let todos = readTodo();
         const index = todos.indexOf(oldTodo);
         if (index === -1) {
-            console.log('Todo not found.');
+            console.log(chalk.yellow('Todo not found.'));
         } else {
             todos[index] = newTodo;
             saveTodo(todos);
-            console.log(`Todo updated: "${oldTodo}" to "${newTodo}"`);
+            console.log(`Todo updated: "${oldTodo} to "${newTodo}"`);
         }
     });
+
+
+program.command('complete')
+    .description('.ark the todo as complete')
+    .argument('<string>', 'add exact todo name to complete')
+    .action((todo) => {
+        let todos = readTodo();
+
+        const index = todos.indexOf(todo);
+        if (index === -1) {
+            console.log(chalk.yellow('Todo not found.'));
+        } else {
+            todos[index] = `[Completed] ${todos[index]}`;
+            console.log(chalk.green.bold(`${todos[index]}`))
+            saveTodo(todos);
+        }
+
+    })
 
 
 program.parse();    
